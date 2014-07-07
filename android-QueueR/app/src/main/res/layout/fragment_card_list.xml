@@ -1,0 +1,17 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.xanadu.queuer.CardListFragment"
+    style="@style/card">
+
+    <it.gmariotti.cardslib.library.view.CardListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/frontCardList"
+        style="@style/list_card.thumbnail"
+        card:list_card_layout_resourceID="@layout/list_card_thumbnail_layout"/>
+
+</FrameLayout>
