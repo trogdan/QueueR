@@ -9,10 +9,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.DecodeHintType;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
@@ -35,9 +43,34 @@ public class CardListFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private Context mAttachedContext;
 
-    ArrayList<Card> mCards;
-    CardListView mCardListView;
-    CardArrayAdapter mCardArrayAdapter;
+    private ArrayList<Card> mCards;
+    private CardListView mCardListView;
+    private CardArrayAdapter mCardArrayAdapter;
+
+    static final Set<BarcodeFormat> PRODUCT_FORMATS;
+    static final Set<BarcodeFormat> INDUSTRIAL_FORMATS;
+    private static final Set<BarcodeFormat> ONE_D_FORMATS;
+    static final Set<BarcodeFormat> QR_CODE_FORMATS = EnumSet.of(BarcodeFormat.QR_CODE);
+    static final Set<BarcodeFormat> DATA_MATRIX_FORMATS = EnumSet.of(BarcodeFormat.DATA_MATRIX);
+    static final Set<BarcodeFormat> AZTEC_FORMATS = EnumSet.of(BarcodeFormat.AZTEC);
+    static final Set<BarcodeFormat> PDF417_FORMATS = EnumSet.of(BarcodeFormat.PDF_417);
+    static {
+        PRODUCT_FORMATS = EnumSet.of(BarcodeFormat.UPC_A,
+                BarcodeFormat.UPC_E,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.EAN_8,
+                BarcodeFormat.RSS_14,
+                BarcodeFormat.RSS_EXPANDED);
+        INDUSTRIAL_FORMATS = EnumSet.of(BarcodeFormat.CODE_39,
+                BarcodeFormat.CODE_93,
+                BarcodeFormat.CODE_128,
+                BarcodeFormat.ITF,
+                BarcodeFormat.CODABAR);
+        ONE_D_FORMATS = EnumSet.copyOf(PRODUCT_FORMATS);
+        ONE_D_FORMATS.addAll(INDUSTRIAL_FORMATS);
+    }
+
+    private final Map<DecodeHintType,Object> hints;
 
     /**
      * Use this factory method to create a new instance of
@@ -55,7 +88,7 @@ public class CardListFragment extends Fragment {
         return fragment;
     }
     public CardListFragment() {
-        // Required empty public constructor
+        hints = new EnumMap<DecodeHintType,Object>(DecodeHintType.class);
     }
 
     @Override
@@ -66,8 +99,8 @@ public class CardListFragment extends Fragment {
             //mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        initDecoderHints();
         initCards();
-
     }
 
     @Override
@@ -128,9 +161,34 @@ public class CardListFragment extends Fragment {
         startScan();
     }
 
-    /*
-     * Skipping most code and I will only show you the most essential.
-     */
+    //Eventually pull this into Decoder class
+    private void initDecoderHints()
+    {
+        Collection<BarcodeFormat> decodeFormats = EnumSet.noneOf(BarcodeFormat.class);
+        /* TODO
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_1D_PRODUCT, true)) {
+            decodeFormats.addAll(DecodeFormatManager.PRODUCT_FORMATS);
+        }
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_1D_INDUSTRIAL, true)) {
+            decodeFormats.addAll(DecodeFormatManager.INDUSTRIAL_FORMATS);
+        }
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_QR, true)) {
+            decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
+        }
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_DATA_MATRIX, true)) {
+            decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
+        }
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_AZTEC, false)) {
+            decodeFormats.addAll(DecodeFormatManager.AZTEC_FORMATS);
+        }
+        if (prefs.getBoolean(PreferencesActivity.KEY_DECODE_PDF417, false)) {
+            decodeFormats.addAll(DecodeFormatManager.PDF417_FORMATS);
+        }
+        */
+        decodeFormats.addAll(QR_CODE_FORMATS);
+
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
+    }
 
     private void startScan() {
         ScanDirectoryTask scanTask = new ScanDirectoryTask(new ScanDirectoryCallback() {
@@ -139,7 +197,7 @@ public class CardListFragment extends Fragment {
             public void onTaskDone(ArrayList<File> results) {
                 loadCards(results);
             }
-        });
+        }, hints);
 
         //TODO real directories
         //String picturesDirectory = Environment.

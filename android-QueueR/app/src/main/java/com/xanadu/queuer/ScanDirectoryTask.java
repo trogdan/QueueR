@@ -3,11 +3,15 @@ package com.xanadu.queuer;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.MultiFormatReader;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Created by dan on 7/6/14.
@@ -17,8 +21,12 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
     private ScanDirectoryCallback mScanDirectoryCallback;
     private ArrayList<File> mArrayList = new ArrayList<File>();
 
-    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback) {
+    private final MultiFormatReader multiFormatReader;
+
+    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback, Map<DecodeHintType,Object> hints) {
         mScanDirectoryCallback = scanDirectoryCallback;
+        multiFormatReader = new MultiFormatReader();
+        multiFormatReader.setHints(hints);
     }
 
 

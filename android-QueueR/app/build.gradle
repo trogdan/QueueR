@@ -27,4 +27,6 @@ dependencies {
 
     //Extra card library, it is required only if you want to use integrations with other libraries
     //compile 'com.github.gabrielemariotti.cards:library-extra:1.7.3'
+
+    compile 'com.google.zxing:core:3.0.0'
 }
