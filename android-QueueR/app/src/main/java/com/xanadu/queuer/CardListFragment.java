@@ -2,6 +2,7 @@ package com.xanadu.queuer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -195,9 +196,9 @@ public class CardListFragment extends Fragment {
 
             @Override
             public void onTaskDone(ArrayList<File> results) {
-                loadCards(results);
+                decodeFirst(results);
             }
-        }, hints);
+        });
 
         //TODO real directories
         //String picturesDirectory = Environment.
@@ -207,6 +208,21 @@ public class CardListFragment extends Fragment {
         scanTask.execute("/sdcard/BarcodeScanner/Barcodes");
     }
 
+    //performs a barcode decode
+    private void decodeFirst(ArrayList<File> thumbnailList)
+    {
+        DecodeImageTask decodeTask = new DecodeImageTask(new DecodeImageCallback() {
+
+            @Override
+            public void onTaskDone(ArrayList<Bitmap> results) {
+                //decodeFirst(results);
+            }
+        }, hints);
+
+        File file = thumbnailList.get(0);
+
+        decodeTask.execute(file);
+    }
 
     //queues a directory scan
     private void loadCards(ArrayList<File> thumbnailList)

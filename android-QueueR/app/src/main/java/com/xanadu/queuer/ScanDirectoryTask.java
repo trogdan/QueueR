@@ -3,15 +3,11 @@ package com.xanadu.queuer;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.MultiFormatReader;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 
 /**
  * Created by dan on 7/6/14.
@@ -21,12 +17,8 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
     private ScanDirectoryCallback mScanDirectoryCallback;
     private ArrayList<File> mArrayList = new ArrayList<File>();
 
-    private final MultiFormatReader multiFormatReader;
-
-    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback, Map<DecodeHintType,Object> hints) {
+    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback) {
         mScanDirectoryCallback = scanDirectoryCallback;
-        multiFormatReader = new MultiFormatReader();
-        multiFormatReader.setHints(hints);
     }
 
 
@@ -38,7 +30,6 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
     }
 
     protected void walk(File root) {
-
         File[] list = root.listFiles(new ImageFileFilter());
 
         if(list == null)
@@ -46,12 +37,11 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
 
         for (File f : list) {
             if (f.isDirectory()) {
-                Log.d("", "Dir: " + f.getAbsoluteFile());
+                //Log.d("", "Dir: " + f.getAbsoluteFile());
                 walk(f);
             }
             else {
-                Log.d("", "File: " + f.getAbsoluteFile());
-                //TODO find QR code
+                //Log.d("", "File: " + f.getAbsoluteFile());
                 try {
                     //See if the file is already found
                     if (!mArrayList.contains(f.getCanonicalFile())) {
@@ -69,7 +59,6 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
         for (int i = 0; i < count; i++) {
             File root = new File(paths[i]);
             walk(root);
-            //totalSize += Downloader.downloadFile(urls[i]);
             //publishProgress((int) ((i / (float) count) * 100));
             // Escape early if cancel() is called
             if (isCancelled()) break;
