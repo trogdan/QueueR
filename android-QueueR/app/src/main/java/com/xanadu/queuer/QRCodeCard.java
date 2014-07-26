@@ -17,7 +17,7 @@ import it.gmariotti.cardslib.library.internal.CardThumbnail;
  */
 public class QRCodeCard  extends Card {
 
-     public QRCodeCard(Context context) {
+    public QRCodeCard(Context context) {
         this(context, R.layout.frontcard_inner_content);
     }
 

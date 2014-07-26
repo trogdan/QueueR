@@ -6,12 +6,14 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.Result;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -196,30 +198,35 @@ public class CardListFragment extends Fragment {
 
             @Override
             public void onTaskDone(ArrayList<File> results) {
-                decodeFirst(results);
+                decodeNew(results);
             }
         });
 
-        //TODO real directories
-        //String picturesDirectory = Environment.
-        //        getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).
-        //        getAbsolutePath();
+        String picturesDirectory = Environment.
+                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).
+                getAbsolutePath();
 
-        scanTask.execute("/sdcard/BarcodeScanner/Barcodes");
+        scanTask.execute(picturesDirectory);
     }
 
     //performs a barcode decode
-    private void decodeFirst(ArrayList<File> thumbnailList)
+    private void decodeNew(ArrayList<File> picturesList)
     {
         DecodeImageTask decodeTask = new DecodeImageTask(new DecodeImageCallback() {
 
             @Override
-            public void onTaskDone(ArrayList<Bitmap> results) {
-                //decodeFirst(results);
+            public void onTaskDone(ArrayList<Result> results) {
+                //Update database
+
+                //Merge new results with old
+
+                //Load all ze results
+
+                //loadCards(thumbnailFiles);
             }
         }, hints);
 
-        File file = thumbnailList.get(0);
+        File file = picturesList.get(0);
 
         decodeTask.execute(file);
     }
