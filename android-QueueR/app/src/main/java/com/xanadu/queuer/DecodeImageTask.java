@@ -27,7 +27,7 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
 
     private final DecodeImageCallback mDecodeImageCallback;
     private final MultiFormatReader mMultiFormatReader;
-    private ArrayList<Bitmap> mThumbnailList = new ArrayList<Bitmap>();
+    private ArrayList<Result> mResultList = new ArrayList<Result>();
 
     public DecodeImageTask(DecodeImageCallback decodeImageCallback, Map<DecodeHintType,Object> hints) {
         mDecodeImageCallback = decodeImageCallback;
@@ -41,12 +41,17 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
         //calculate how many bytes our image consists of.
         int bytes = bitmap.getByteCount();
 
-        ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
-        bitmap.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
+        //Create a new buffer
+        ByteBuffer buffer = ByteBuffer.allocate(bytes);
 
+        //Move the byte data to the buffer
+        bitmap.copyPixelsToBuffer(buffer);
+
+        //Get the raw bytes
         byte[] place = buffer.array();
 
-        return place; //Get the underlying array containing the data.
+        //Return the underlying array containing the data.
+        return place;
     }
     /**
      * A factory method to build the appropriate LuminanceSource object based on the format
@@ -57,8 +62,9 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
      * @param height The height of the image.
      * @return A PlanarYUVLuminanceSource instance.
      */
-    public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        /*
+    public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height)
+    {
+        /* Taken from zxing barcode scanner
         Rect rect = getFramingRectInPreview();
         if (rect == null) {
             return null;
@@ -80,49 +86,79 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
      * @param width  The width of the preview frame.
      * @param height The height of the preview frame.
      */
-    private Result decode(int[] data, int width, int height) {
+    private Result decode(int[] data, int width, int height)
+    {
         Result rawResult = null;
+
+        //Decoding regular ole rgb
         RGBLuminanceSource source = new RGBLuminanceSource(width, height, data);
+
         if (source != null) {
+
+            //create a binary representation
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
             try {
+                //try to decode the code, cross your fingers
                 rawResult = mMultiFormatReader.decodeWithState(bitmap);
             } catch (ReaderException re) {
-                String exception = re.toString();
-                Log.e("", exception);
+                Log.e("", re.toString());
                 // continue
             } finally {
+                // prepare for next image
                 mMultiFormatReader.reset();
             }
         }
         return rawResult;
     }
+
     @Override
-    protected Integer doInBackground(File... files) {
+    protected Integer doInBackground(File... files)
+    {
         int count = files.length;
+
         for (int i = 0; i < count; i++) {
             Bitmap bitmap = BitmapFactory.decodeFile(files[i].getAbsolutePath());
+
+            //Get the dimensions
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
+
+            //Allocate space to store the bitmap pixels
             int[] pixels = new int[width * height];
+
+            //Store the bitmap pixels, and clear the bitmap
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
             bitmap.recycle();
+
+            //See if we find a QR code
             Result result = decode(pixels, width, height);
-            //publishProgress((int) ((i / (float) count) * 100));
+            if(result != null)
+            {
+                //Store the result on success
+                mResultList.add(result);
+            }
+
+            //Sure, why not
+            publishProgress((int) ((i / (float) count) * 100));
+
             // Escape early if cancel() is called
             if (isCancelled()) break;
         }
 
-        return mThumbnailList.size();
+        return mResultList.size();
     }
 
 
-    protected void onProgressUpdate(Integer... progress) {
+    protected void onProgressUpdate(Integer... progress)
+    {
+        //TODO
         //setProgressPercent(progress[0]);
     }
 
-    protected void onPostExecute(Integer result) {
-        mDecodeImageCallback.onTaskDone(mThumbnailList);
+    protected void onPostExecute(Integer result)
+    {
+        mDecodeImageCallback.onTaskDone(mResultList);
         //showDialog("Found " + result + " files");
     }
 }
