@@ -1,5 +1,6 @@
 package com.xanadu.queuer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -16,6 +17,7 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,12 +30,18 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
     private final DecodeImageCallback mDecodeImageCallback;
     private final MultiFormatReader mMultiFormatReader;
     private ArrayList<DecodedFile> mResultList = new ArrayList<DecodedFile>();
+    private QRSQLiteHelper mSqlHelper;
 
-    public DecodeImageTask(DecodeImageCallback decodeImageCallback, Map<DecodeHintType,Object> hints) {
+    public DecodeImageTask(DecodeImageCallback decodeImageCallback,
+                           Map<DecodeHintType,Object> hints,
+                           Context context)
+    {
         mDecodeImageCallback = decodeImageCallback;
 
         mMultiFormatReader = new MultiFormatReader();
         mMultiFormatReader.setHints(hints);
+
+        mSqlHelper = QRSQLiteHelper.instance(context);
     }
 
     protected byte[] bitmapToBytes(Bitmap bitmap)
@@ -115,6 +123,9 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
     @Override
     protected Integer doInBackground(File... files)
     {
+        //Ugh, fine, query the DB again.  should be the same as in ScanDirectoryTask
+        Map<String, FileEntry> entries = mSqlHelper.getAllFilesByPath();
+
         int count = files.length;
 
         for (int i = 0; i < count; i++) {
@@ -140,6 +151,25 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
                 mResultList.add(decoded);
             }
 
+            try {
+                FileEntry entry = entries.get(files[i].getCanonicalPath());
+                if(entry != null)
+                {
+                    //Assume same path, new file time
+                    entry.setLastModified(files[i].lastModified());
+                    mSqlHelper.updateFile(entry);
+                }
+                else
+                {
+                    //don't think we need an id on an insert
+                    entry = new FileEntry();
+                    entry.setPath(files[i].getCanonicalPath());
+                    entry.setLastModified(files[ich].lastModified());
+                    mSqlHelper.addFile(entry);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             //Sure, why not
             publishProgress((int) ((i / (float) count) * 100));
 

@@ -1,5 +1,6 @@
 package com.xanadu.queuer;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Created by dan on 7/6/14.
@@ -16,11 +18,40 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
 
     private ScanDirectoryCallback mScanDirectoryCallback;
     private ArrayList<File> mArrayList = new ArrayList<File>();
+    private QRSQLiteHelper mSqlHelper;
 
-    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback) {
+    public ScanDirectoryTask(ScanDirectoryCallback scanDirectoryCallback, Context context) {
         mScanDirectoryCallback = scanDirectoryCallback;
+        mSqlHelper = QRSQLiteHelper.instance(context);
     }
 
+    private ArrayList<File> getChangedFiles(ArrayList<File> scanResults)
+    {
+        Map<String, FileEntry> entries = mSqlHelper.getAllFilesByPath();
+
+        //Take all ZEE files and remove ones that are already in the db
+        //i.e. have tried to be decoded
+        for(File f: scanResults)
+        {
+            try {
+                FileEntry entry = entries.get(f.getCanonicalPath());
+                if(entry != null)
+                {
+                    //Compare the date
+                    if(f.lastModified() > entry.getLastModified())
+                    {
+                        scanResults.remove(f);
+                    }
+                }
+            } catch (IOException e) {
+                //wtf
+                scanResults.remove(f);
+                e.printStackTrace();
+            }
+        }
+
+        return scanResults;
+    }
 
     private class CustomComparator implements Comparator<File> {
         @Override
@@ -63,6 +94,10 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
             // Escape early if cancel() is called
             if (isCancelled()) break;
         }
+
+        //Check the db for already decoded images
+        mArrayList = getChangedFiles(mArrayList);
+
         //Sort
         Collections.sort(mArrayList, new CustomComparator());
 

@@ -16,12 +16,14 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -193,6 +195,7 @@ public class CardListFragment extends Fragment {
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
     }
 
+
     private void startScan() {
         ScanDirectoryTask scanTask = new ScanDirectoryTask(new ScanDirectoryCallback() {
 
@@ -200,7 +203,7 @@ public class CardListFragment extends Fragment {
             public void onTaskDone(ArrayList<File> results) {
                 decodeNew(results);
             }
-        });
+        }, mAttachedContext);
 
         String picturesDirectory = Environment.
                 getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).
@@ -210,7 +213,7 @@ public class CardListFragment extends Fragment {
     }
 
     //performs a barcode decode
-    private void decodeNew(ArrayList<File> picturesList)
+    private void decodeNew(ArrayList<File> pictures)
     {
         DecodeImageTask decodeTask = new DecodeImageTask(new DecodeImageCallback() {
 
@@ -224,11 +227,12 @@ public class CardListFragment extends Fragment {
 
                 //loadCards(thumbnailFiles);
             }
-        }, hints);
+        }, hints, mAttachedContext);
 
-        File file = picturesList.get(0);
+        //Ugh, needs optimization TODO
+        File[] pics = pictures.toArray(new File[pictures.size()]);
 
-        decodeTask.execute(file);
+        decodeTask.execute(pics);
     }
 
     //queues a directory scan
