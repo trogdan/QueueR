@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
@@ -14,11 +15,17 @@ import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
+import com.google.zxing.WriterException;
 import com.google.zxing.common.HybridBinarizer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -31,6 +38,9 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
     private final MultiFormatReader mMultiFormatReader;
     private ArrayList<DecodedFile> mResultList = new ArrayList<DecodedFile>();
     private QRSQLiteHelper mSqlHelper;
+
+    private static final String THUMBS_DIRECTORY = "QueueR";
+        private static final int DEFAULT_THUMB_SIZE = 64;
 
     public DecodeImageTask(DecodeImageCallback decodeImageCallback,
                            Map<DecodeHintType,Object> hints,
@@ -84,6 +94,104 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
         // Go ahead and assume it's YUV rather than die.
         return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
                 rect.width(), rect.height(), false);
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String makeBarcodeFileName(String contents) {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+
+            byte[] hash = messageDigest.digest(contents.getBytes("UTF-8"));
+
+            for (int i = 0; i < hash.length; i++) {
+                StringBuffer hexString = new StringBuffer();
+                if ((0xff & hash[i]) < 0x10) {
+                    hexString.append("0"
+                            + Integer.toHexString((0xFF & hash[i])));
+                } else {
+                    hexString.append(Integer.toHexString(0xFF & hash[i]));
+                }
+                return hexString.toString();
+            }
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("", e.toString());
+            //e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            Log.e("", e.toString());
+            //e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public File cacheResult(Result result)
+    {
+        if(isExternalStorageWritable())
+        {
+            //Convert the result to a bitmap
+            Bitmap bitmap;
+            try {
+                bitmap = QRCodeEncoder.encodeAsBitmap(result.getText(), DEFAULT_THUMB_SIZE);
+            } catch (WriterException we) {
+                Log.w("", we);
+                return null;
+            }
+            if (bitmap == null) {
+                return null;
+            }
+
+            //Get the thumb folder
+            File thumbRoot = new File(Environment.getExternalStorageDirectory(), THUMBS_DIRECTORY);
+            if (!thumbRoot.exists() && !thumbRoot.mkdirs()) {
+                Log.w("", "Couldn't make dir " + thumbRoot);
+                //showErrorMessage(R.string.msg_unmount_usb);
+                return null;
+            }
+
+            //Generate a UUID from the result text *should* only be one file per result
+            String filename = makeBarcodeFileName(result.getText());
+            if(filename == null) {
+                return null;
+            }
+
+            File barcodeFile = new File(thumbRoot, filename + ".png");
+            //Delete the old file if it exists
+            if (!barcodeFile.delete()) {
+                Log.w("", "Could not delete " + barcodeFile);
+                // continue anyway
+            }
+
+            //Write the new file
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(barcodeFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0, fos);
+            } catch (FileNotFoundException fnfe) {
+                Log.w("", "Couldn't access file " + barcodeFile + " due to " + fnfe);
+                //showErrorMessage(R.string.msg_unmount_usb);
+                return null;
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                        //success! phew
+                        return barcodeFile;
+                    } catch (IOException ioe) {
+                        // do nothing
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -146,8 +254,11 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
             Result result = decode(pixels, width, height);
             if(result != null)
             {
+                //Cache a thumbnail for zee GUI
+                File thumbnail = cacheResult(result);
+
                 //Store the result on success
-                DecodedFile decoded = new DecodedFile(files[i], null, result);
+                DecodedFile decoded = new DecodedFile(files[i], thumbnail, result);
                 mResultList.add(decoded);
             }
 
