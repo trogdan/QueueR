@@ -11,13 +11,7 @@ public class QRCodeEntry {
     private long sourceModified;
 
     public QRCodeEntry(){}
-	
-	public QRCodeEntry(String title, String sourcePath, String thumbPath) {
-		super();
-		this.title = title;
-		this.sourcePath = sourcePath;
-        this.thumbPath = thumbPath;
-	}
+
 	
 	public int getId() {
 		return id;
