@@ -59,16 +59,16 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String[] COLUMNS = {KEY_ID,KEY_TITLE, KEY_SOURCE_PATH, KEY_THUMB_PATH};
     
-	public void addQRCode(com.xanadu.queuer.QRCode book){
-		Log.d("addQRCode", book.toString());
+	public void addQRCode(QRCodeEntry entry){
+		Log.d("addQRCode", entry.toString());
 		// 1. get reference to writable DB
 		SQLiteDatabase db = this.getWritableDatabase();
 		 
 		// 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put(KEY_TITLE, book.getTitle()); // get title 
-        values.put(KEY_SOURCE_PATH, book.getSourcePath()); // get source path
-        values.put(KEY_THUMB_PATH, book.getThumbPath()); // get thumb path
+        values.put(KEY_TITLE, entry.getTitle()); // get title
+        values.put(KEY_SOURCE_PATH, entry.getSourcePath()); // get source path
+        values.put(KEY_THUMB_PATH, entry.getThumbPath()); // get thumb path
 
         // 3. insert
         db.insert(TABLE_QRS, // table
@@ -79,7 +79,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         db.close(); 
 	}
 	
-	public com.xanadu.queuer.QRCode getBook(int id){
+	public QRCodeEntry getBook(int id){
 
 		// 1. get reference to readable DB
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -100,21 +100,21 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
  
         // 4. build qr code object
-        com.xanadu.queuer.QRCode qrCode = new com.xanadu.queuer.QRCode();
-        qrCode.setId(Integer.parseInt(cursor.getString(0)));
-        qrCode.setTitle(cursor.getString(1));
-        qrCode.setSourcePath(cursor.getString(2));
-        qrCode.setThumbPath(cursor.getString(3));
+        QRCodeEntry entry = new QRCodeEntry();
+        entry.setId(Integer.parseInt(cursor.getString(0)));
+        entry.setTitle(cursor.getString(1));
+        entry.setSourcePath(cursor.getString(2));
+        entry.setThumbPath(cursor.getString(3));
 
-		Log.d("getQRCode("+id+")", qrCode.toString());
+		Log.d("getQRCode(" + id + ")", entry.toString());
 
         // 5. return qr code
-        return qrCode;
+        return entry;
 	}
 	
 	// Get All Books
-    public List<QRCode> getAllQRCodes() {
-        List<com.xanadu.queuer.QRCode> qrCodes = new LinkedList<QRCode>();
+    public List<QRCodeEntry> getAllQRCodes() {
+        List<QRCodeEntry> entries = new LinkedList<QRCodeEntry>();
 
         // 1. build the query
         String query = "SELECT  * FROM " + TABLE_QRS;
@@ -124,43 +124,43 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
  
         // 3. go over each row, build qr code and add it to list
-        com.xanadu.queuer.QRCode qrCode;
+        QRCodeEntry entry;
         if (cursor.moveToFirst()) {
             do {
-                qrCode = new com.xanadu.queuer.QRCode();
-                qrCode.setId(Integer.parseInt(cursor.getString(0)));
-                qrCode.setTitle(cursor.getString(1));
-                qrCode.setSourcePath(cursor.getString(2));
-                qrCode.setThumbPath(cursor.getString(3));
+                entry = new QRCodeEntry();
+                entry.setId(Integer.parseInt(cursor.getString(0)));
+                entry.setTitle(cursor.getString(1));
+                entry.setSourcePath(cursor.getString(2));
+                entry.setThumbPath(cursor.getString(3));
 
                 // Add qrCode to qrCodes
-                qrCodes.add(qrCode);
+                entries.add(entry);
             } while (cursor.moveToNext());
         }
 
-		Log.d("getAllQRCodes()", qrCodes.toString());
+		Log.d("getAllQRCodes()", entries.toString());
 
         // return qrCodes
-        return qrCodes;
+        return entries;
     }
 	
 	 // Updating single qr code
-    public int updateQRCode(com.xanadu.queuer.QRCode qrCode) {
+    public int updateQRCode(QRCodeEntry entry) {
 
     	// 1. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
  
 		// 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put("title", qrCode.getTitle()); // get title
-        values.put("sourcePath", qrCode.getSourcePath()); // get source path
-        values.put("thumbPath", qrCode.getThumbPath()); // get thumb path
+        values.put("title", entry.getTitle()); // get title
+        values.put("sourcePath", entry.getSourcePath()); // get source path
+        values.put("thumbPath", entry.getThumbPath()); // get thumb path
 
         // 3. updating row
         int i = db.update(TABLE_QRS, //table
         		values, // column/value
         		KEY_ID+" = ?", // selections
-                new String[] { String.valueOf(qrCode.getId()) }); //selection args
+                new String[] { String.valueOf(entry.getId()) }); //selection args
         
         // 4. close
         db.close();
@@ -169,7 +169,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
     }
 
     // Deleting single qr code
-    public void deleteQRCode(com.xanadu.queuer.QRCode qrCode) {
+    public void deleteQRCode(QRCodeEntry entry) {
 
     	// 1. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -177,12 +177,12 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         // 2. delete
         db.delete(TABLE_QRS,
         		KEY_ID+" = ?",
-                new String[] { String.valueOf(qrCode.getId()) });
+                new String[] { String.valueOf(entry.getId()) });
         
         // 3. close
         db.close();
         
-		Log.d("deleteQRCode", qrCode.toString());
+		Log.d("deleteQRCode", entry.toString());
 
     }
 }

@@ -1,16 +1,16 @@
 package com.xanadu.queuer;
 
 
-public class QRCode {
+public class QRCodeEntry {
 
 	private int id;
 	private String title;
 	private String sourcePath;
     private String thumbPath;
 
-    public QRCode(){}
+    public QRCodeEntry(){}
 	
-	public QRCode(String title, String sourcePath, String thumbPath) {
+	public QRCodeEntry(String title, String sourcePath, String thumbPath) {
 		super();
 		this.title = title;
 		this.sourcePath = sourcePath;
@@ -45,7 +45,7 @@ public class QRCode {
     @Override
 	public String toString() {
 		return "QRCode [id=" + id + ", title=" + title + ", sourcePath=" + sourcePath
-				+ "]";
+				+ ", thumbPath=" + thumbPath + "]";
 	}
 	
 	
