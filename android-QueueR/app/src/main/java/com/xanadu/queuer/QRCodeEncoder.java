@@ -30,7 +30,7 @@ public class QRCodeEncoder {
             hints.put(EncodeHintType.CHARACTER_SET, encoding);
         }
         BitMatrix result;
-        try
+        try {
             result = new MultiFormatWriter().encode(contentsToEncode, BarcodeFormat.QR_CODE, dimension, dimension, hints);
         } catch (IllegalArgumentException iae) {
             // Unsupported format
