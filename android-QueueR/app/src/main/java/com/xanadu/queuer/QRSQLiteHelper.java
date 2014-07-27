@@ -119,7 +119,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         entry.setSourcePath(cursor.getString(2));
         entry.setThumbPath(cursor.getString(3));
         entry.setResult(cursor.getString(4));
-        entry.setSourceModified(Integer.parseInt(cursor.getString(5)));
+        entry.setSourceModified(Long.parseLong(cursor.getString(5)));
 
 		Log.d("getQRCode(" + id + ")", entry.toString());
 
@@ -148,7 +148,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
                 entry.setSourcePath(cursor.getString(2));
                 entry.setThumbPath(cursor.getString(3));
                 entry.setResult(cursor.getString(4));
-                entry.setSourceModified(Integer.parseInt(cursor.getString(5)));
+                entry.setSourceModified(Long.parseLong(cursor.getString(5)));
 
                 // Add qrCode to qrCodes
                 entries.add(entry);
