@@ -215,7 +215,7 @@ public class CardListFragment extends Fragment {
         DecodeImageTask decodeTask = new DecodeImageTask(new DecodeImageCallback() {
 
             @Override
-            public void onTaskDone(ArrayList<Result> results) {
+            public void onTaskDone(ArrayList<DecodedFile> results) {
                 //Update database
 
                 //Merge new results with old

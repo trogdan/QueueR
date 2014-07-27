@@ -27,7 +27,7 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
 
     private final DecodeImageCallback mDecodeImageCallback;
     private final MultiFormatReader mMultiFormatReader;
-    private ArrayList<Result> mResultList = new ArrayList<Result>();
+    private ArrayList<DecodedFile> mResultList = new ArrayList<DecodedFile>();
 
     public DecodeImageTask(DecodeImageCallback decodeImageCallback, Map<DecodeHintType,Object> hints) {
         mDecodeImageCallback = decodeImageCallback;
@@ -136,7 +136,8 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
             if(result != null)
             {
                 //Store the result on success
-                mResultList.add(result);
+                DecodedFile decoded = new DecodedFile(files[i], null, result);
+                mResultList.add(decoded);
             }
 
             //Sure, why not
