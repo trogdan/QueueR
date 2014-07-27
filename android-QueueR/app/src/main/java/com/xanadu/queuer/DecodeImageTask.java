@@ -39,8 +39,7 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
     private ArrayList<DecodedFile> mResultList = new ArrayList<DecodedFile>();
     private QRSQLiteHelper mSqlHelper;
 
-    private static final String THUMBS_DIRECTORY = "QueueR";
-        private static final int DEFAULT_THUMB_SIZE = 64;
+    private static final int DEFAULT_THUMB_SIZE = 64;
 
     public DecodeImageTask(DecodeImageCallback decodeImageCallback,
                            Map<DecodeHintType,Object> hints,
@@ -149,7 +148,8 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
             }
 
             //Get the thumb folder
-            File thumbRoot = new File(Environment.getExternalStorageDirectory(), THUMBS_DIRECTORY);
+            File thumbRoot = new File(GlobalValues.THUMBS_DIRECTORY);
+
             if (!thumbRoot.exists() && !thumbRoot.mkdirs()) {
                 Log.w("", "Couldn't make dir " + thumbRoot);
                 //showErrorMessage(R.string.msg_unmount_usb);
