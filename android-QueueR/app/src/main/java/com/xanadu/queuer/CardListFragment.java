@@ -219,12 +219,7 @@ public class CardListFragment extends Fragment {
 
             @Override
             public void onTaskDone(ArrayList<DecodedFile> results) {
-                //Update database
-
-                //Merge new results with old
-
                 //Load all ze results
-
                 //loadCards(thumbnailFiles);
             }
         }, hints, mAttachedContext);
