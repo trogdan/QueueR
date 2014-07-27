@@ -8,6 +8,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -26,7 +27,7 @@ public class QRCodeEncoder {
         Map<EncodeHintType,Object> hints = null;
         String encoding = guessAppropriateEncoding(contentsToEncode);
         if (encoding != null) {
-            hints = new EnumMap<>(EncodeHintType.class);
+            hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, encoding);
         }
         BitMatrix result;
