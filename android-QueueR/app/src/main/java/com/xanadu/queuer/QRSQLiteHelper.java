@@ -92,7 +92,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         db.close(); 
 	}
 	
-	public QRCodeEntry getBook(int id){
+	public QRCodeEntry getQRCode(int id){
 
 		// 1. get reference to readable DB
 		SQLiteDatabase db = this.getReadableDatabase();
