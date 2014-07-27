@@ -164,7 +164,7 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
                     //don't think we need an id on an insert
                     entry = new FileEntry();
                     entry.setPath(files[i].getCanonicalPath());
-                    entry.setLastModified(files[ich].lastModified());
+                    entry.setLastModified(files[i].lastModified());
                     mSqlHelper.addFile(entry);
                 }
             } catch (IOException e) {
