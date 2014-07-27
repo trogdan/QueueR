@@ -7,6 +7,8 @@ public class QRCodeEntry {
 	private String title;
 	private String sourcePath;
     private String thumbPath;
+    private String result;
+    private int sourceModified;
 
     public QRCodeEntry(){}
 	
@@ -40,6 +42,18 @@ public class QRCodeEntry {
     }
     public void setThumbPath(String thumbPath) {
         this.thumbPath = thumbPath;
+    }
+    public int getSourceModified() {
+        return sourceModified;
+    }
+    public void setSourceModified(int sourceModified) {
+        this.sourceModified = sourceModified;
+    }
+    public String getResult() {
+        return result;
+    }
+    public void setResult(String result) {
+        this.result = result;
     }
 
     @Override

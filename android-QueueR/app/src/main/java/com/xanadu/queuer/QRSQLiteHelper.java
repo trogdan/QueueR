@@ -28,7 +28,9 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
 				"title TEXT, "+
                 "sourcePath TEXT, "+
-				"thumbPath TEXT )";
+				"thumbPath TEXT, "+
+                "result TEXT, "+
+                "sourceModified INTEGER)";
 		
 		// create books table
 		db.execSQL(CREATE_QR_TABLE);
@@ -56,8 +58,17 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
     private static final String KEY_TITLE = "title";
     private static final String KEY_SOURCE_PATH = "sourcePath";
     private static final String KEY_THUMB_PATH = "thumbPath";
+    private static final String KEY_RESULT = "result";
+    private static final String KEY_SOURCE_MODIFIED = "sourceModified";
 
-    private static final String[] COLUMNS = {KEY_ID,KEY_TITLE, KEY_SOURCE_PATH, KEY_THUMB_PATH};
+    private static final String[] COLUMNS = {
+            KEY_ID,
+            KEY_TITLE,
+            KEY_SOURCE_PATH,
+            KEY_THUMB_PATH,
+            KEY_RESULT,
+            KEY_SOURCE_MODIFIED
+    };
     
 	public void addQRCode(QRCodeEntry entry){
 		Log.d("addQRCode", entry.toString());
@@ -69,6 +80,8 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         values.put(KEY_TITLE, entry.getTitle()); // get title
         values.put(KEY_SOURCE_PATH, entry.getSourcePath()); // get source path
         values.put(KEY_THUMB_PATH, entry.getThumbPath()); // get thumb path
+        values.put(KEY_RESULT, entry.getResult()); // get result
+        values.put(KEY_SOURCE_MODIFIED, entry.getSourceModified()); // get modified
 
         // 3. insert
         db.insert(TABLE_QRS, // table
@@ -105,6 +118,8 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
         entry.setTitle(cursor.getString(1));
         entry.setSourcePath(cursor.getString(2));
         entry.setThumbPath(cursor.getString(3));
+        entry.setResult(cursor.getString(4));
+        entry.setSourceModified(Integer.parseInt(cursor.getString(5)));
 
 		Log.d("getQRCode(" + id + ")", entry.toString());
 
@@ -132,6 +147,8 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
                 entry.setTitle(cursor.getString(1));
                 entry.setSourcePath(cursor.getString(2));
                 entry.setThumbPath(cursor.getString(3));
+                entry.setResult(cursor.getString(4));
+                entry.setSourceModified(Integer.parseInt(cursor.getString(5)));
 
                 // Add qrCode to qrCodes
                 entries.add(entry);
@@ -152,9 +169,11 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
  
 		// 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put("title", entry.getTitle()); // get title
-        values.put("sourcePath", entry.getSourcePath()); // get source path
-        values.put("thumbPath", entry.getThumbPath()); // get thumb path
+        values.put(KEY_TITLE, entry.getTitle()); // get title
+        values.put(KEY_SOURCE_PATH, entry.getSourcePath()); // get source path
+        values.put(KEY_THUMB_PATH, entry.getThumbPath()); // get thumb path
+        values.put(KEY_RESULT, entry.getResult()); // get result
+        values.put(KEY_SOURCE_MODIFIED, entry.getSourceModified());
 
         // 3. updating row
         int i = db.update(TABLE_QRS, //table
