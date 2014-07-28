@@ -190,6 +190,7 @@ public class CardListFragment extends Fragment {
             decodeFormats.addAll(DecodeFormatManager.PDF417_FORMATS);
         }
         */
+        decodeFormats.addAll(AZTEC_FORMATS);
         decodeFormats.addAll(QR_CODE_FORMATS);
 
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
