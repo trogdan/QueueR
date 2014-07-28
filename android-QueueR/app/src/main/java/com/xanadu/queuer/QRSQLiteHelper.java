@@ -351,7 +351,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
                 entry = new FileEntry();
                 entry.setId(Integer.parseInt(cursor.getString(0)));
                 entry.setPath(cursor.getString(1));
-                entry.setLastModified(Long.parseLong(cursor.getString(5)));
+                entry.setLastModified(Long.parseLong(cursor.getString(2)));
 
                 // Add file to files
                 entries.add(entry);
@@ -382,7 +382,7 @@ public class QRSQLiteHelper extends SQLiteOpenHelper {
                 entry = new FileEntry();
                 entry.setId(Integer.parseInt(cursor.getString(0)));
                 entry.setPath(cursor.getString(1));
-                entry.setLastModified(Long.parseLong(cursor.getString(5)));
+                entry.setLastModified(Long.parseLong(cursor.getString(2)));
 
                 // Add file to files
                 entries.put(entry.getPath(), entry);
