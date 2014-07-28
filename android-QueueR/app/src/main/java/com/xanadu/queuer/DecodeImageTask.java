@@ -262,6 +262,7 @@ public class DecodeImageTask extends AsyncTask<File, Integer, Integer> {
                 mResultList.add(decoded);
             }
 
+            //Make sure we record this file as having been processed
             try {
                 FileEntry entry = entries.get(files[i].getCanonicalPath());
                 if(entry != null)
