@@ -12,6 +12,10 @@ public class ImageFileFilter implements FileFilter
 
     public boolean accept(File file)
     {
+        if(file.isDirectory()) {
+            return true;
+        }
+
         for (String extension : okFileExtensions)
         {
             if (file.getName().toLowerCase().endsWith(extension))
