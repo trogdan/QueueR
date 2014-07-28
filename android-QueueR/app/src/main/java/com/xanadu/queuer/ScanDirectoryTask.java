@@ -38,7 +38,7 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
                 if(entry != null)
                 {
                     //Compare the date
-                    if(f.lastModified() > entry.getLastModified())
+                    if(f.lastModified() <= entry.getLastModified())
                     {
                         scanResults.remove(f);
                     }
@@ -61,6 +61,14 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
     }
 
     protected void walk(File root) {
+        try {
+            //Don't walk our own directory
+            if(root.getCanonicalPath().equals(GlobalValues.THUMBS_DIRECTORY))
+                return;
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }
+
         File[] list = root.listFiles(new ImageFileFilter());
 
         if(list == null)
