@@ -1,0 +1,17 @@
+{
+  "uuid": "05fd224f-88c7-4bfa-a970-d495515a972a",
+  "shortName": "pebble-Queuer",
+  "longName": "pebble-Queuer",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
