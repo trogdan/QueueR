@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -31,8 +32,10 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
 
         //Take all ZEE files and remove ones that are already in the db
         //i.e. have tried to be decoded
-        for(File f: scanResults)
+
+        for(Iterator<File> iter = scanResults.iterator(); iter.hasNext();)
         {
+            File f = iter.next();
             try {
                 FileEntry entry = entries.get(f.getCanonicalPath());
                 if(entry != null)
@@ -40,12 +43,12 @@ public class ScanDirectoryTask extends AsyncTask<String, Integer, Integer>{
                     //Compare the date
                     if(f.lastModified() <= entry.getLastModified())
                     {
-                        scanResults.remove(f);
+                        iter.remove();
                     }
                 }
             } catch (IOException e) {
                 //wtf
-                scanResults.remove(f);
+                iter.remove();
                 e.printStackTrace();
             }
         }
